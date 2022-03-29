@@ -1,3 +1,4 @@
+import "regenerator-runtime/runtime";
 import "../src/css/styles.css";
 import ImageApiSrvice from "./js/api-service";
 import imgCardTpl from "./tamplate/img-card.hbs";
@@ -16,31 +17,36 @@ const refs = getRefs();
 refs.searchFormEl.addEventListener("submit", onSearchFormSubmit);
 loadMoreBtn.refs.button.addEventListener("click", onFatchData);
 
-async function onSearchFormSubmit(event) {
+function onSearchFormSubmit(event) {
   event.preventDefault();
-  imageApiService.input = event.currentTarget.elements.searchQuery.value.trim();
-  event.currentTarget.reset();
-  if (!imageApiService.input) {
-    clearGalleryContainer();
-    return Notify.failure("Please enter a valid string!");
-  }
+  const loadData = async () => {
+    imageApiService.input =
+      event.currentTarget.elements.searchQuery.value.trim();
+    event.currentTarget.reset();
+    if (!imageApiService.input) {
+      clearGalleryContainer();
+      return Notify.failure("Please enter a valid string!");
+    }
 
-  loadMoreBtn.show();
-  const dataAcquisition = await imageApiService.fetchImageFromDb();
-  console.log(dataAcquisition);
+    loadMoreBtn.show();
+    console.log("1");
+    const dataAcquisition = await imageApiService.fetchImageFromDb();
 
-  if (dataAcquisition.hits.length === 0) {
-    imageApiService.resetPage();
-    clearGalleryContainer();
-    return Notify.failure(
-      "Sorry, there are no images matching your search query. Please try again."
-    );
-  } else {
-    imageApiService.resetPage();
-    clearGalleryContainer();
-    renderImgCard(dataAcquisition);
-    loadMoreBtn.enable();
-  }
+    if (dataAcquisition.hits.length === 0) {
+      imageApiService.resetPage();
+      clearGalleryContainer();
+      return Notify.failure(
+        "Sorry, there are no images matching your search query. Please try again."
+      );
+    } else {
+      imageApiService.resetPage();
+      clearGalleryContainer();
+      renderImgCard(dataAcquisition);
+      loadMoreBtn.enable();
+    }
+    console.log(dataAcquisition);
+  };
+  loadData();
 }
 
 async function onFatchData(data) {
